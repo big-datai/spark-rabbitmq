@@ -2,6 +2,21 @@
 (https://coveralls.io/github/Stratio/spark-rabbitmq?branch=master)
 
 # RabbitMQ Spark Streaming Receiver
+# This lib is like the official one but you need to ack messages buy yourself, so if you read from rabbitmq do some staff and then save data so it makes more sence to ack messages after the data is saved for example
+```
+val receiverStream = RabbitMQUtils.createStream[(EventInterface, Long)](ssc, rabbitMqMap, messageHandler)
+    //TODO this is for cassandra repartition -not posible now or expensive
+    receiverStream
+      .repartition(partitions)
+      .foreachRDD((rdd1) => {
+      
+      //do your stuff
+      
+      //ack rabbitmq
+      import org.apache.spark.streaming.rabbitmq.consumer.Consumer
+          rdd1.map(_._2).foreach(a=>{Consumer.chan.basicAck(a,false)})
+          }
+```
 
 RabbitMQ-Receiver is a library that allows the user to read data with [Apache Spark Streaming](https://spark.apache.org/)
 from [RabbitMQ](https://www.rabbitmq.com/).
@@ -11,6 +26,7 @@ from [RabbitMQ](https://www.rabbitmq.com/).
 This library requires Spark 2.0+, Scala 2.11+, RabbitMQ 3.5+
 
 ## Using the library
+
 
 There are two ways of using RabbitMQ-Receiver library:
 
